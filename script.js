@@ -9,7 +9,7 @@
   const $szukaj = document.getElementById('szukaj');
 
   if (!$lista || !$input || !$data || !$dodaj || !$szukaj) {
-    // Jeśli czegoś brakuje, nie rób nic więcej
+    
     return;
   }
 
@@ -63,7 +63,7 @@
 
     // Wyczyść pola i odśwież listę
     $input.value = '';
-    // data zostawiamy, by wygodniej dodać kilka zadań z tą samą datą
+    
     render();
     $input.focus();
   }
@@ -226,7 +226,7 @@
   }
 
   function editTask(id) {
-    // Przejście do trybu edycji inline (bez promptów)
+    // Przejście do trybu edycji inline 
     const exists = tasks.some(t => t.id === id);
     if (!exists) return;
     editingId = id;
@@ -237,7 +237,7 @@
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
     } catch (_) {
-      // ignoruj
+     
     }
   }
 
@@ -255,7 +255,6 @@
   }
 
   function formatDate(str) {
-    // str w formacie YYYY-MM-DD
     try {
       const [y, m, d] = str.split('-').map(n => parseInt(n, 10));
       if (!y || !m || !d) return str;
@@ -265,7 +264,6 @@
     }
   }
 
-  // Zabezpieczone wyróżnianie frazy wyszukiwania
   function escapeRegExp(s) {
     return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
@@ -283,11 +281,8 @@
     if (!q) return escapeHTML(txt);
     try {
       const re = new RegExp(escapeRegExp(q), 'gi');
-      // Najpierw uciekamy cały tekst, potem podmieniamy dopasowania w bezpieczny sposób
-      // Uwaga: Ponieważ używamy replacera, posługujemy się dopasowaniem m (oryginalny fragment)
       return escapeHTML(txt).replace(re, (m) => `<mark class="hl">${escapeHTML(m)}</mark>`);
     } catch {
-      // fallback na wypadek błędów z RegExp
       return escapeHTML(txt);
     }
   }
@@ -300,4 +295,5 @@
       el.style.borderColor = '';
     }, 300);
   }
+
 })();
