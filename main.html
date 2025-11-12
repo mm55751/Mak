@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LAB C – Mapa i Puzzle</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+</head>
+<body>
+<header>
+    <h1>LAB C – Mapa i Puzzle</h1>
+</header>
+<main>
+    <section class="controls">
+        <button id="btn-permissions" type="button">Poproś o zgody</button>
+        <button id="btn-my-location" type="button">Moja lokalizacja</button>
+        <button id="btn-export" type="button">Pobierz mapę</button>
+        <div id="positionInfo">
+            <strong>Szerokość:</strong> <span id="latitude">–</span>
+            <strong>Długość:</strong> <span id="longitude">–</span>
+        </div>
+    </section>
+    <section class="map-section">
+        <div id="map"></div>
+    </section>
+    <section class="puzzle-section">
+        <h2>Stół z elementami (4 x 4)</h2>
+        <div class="puzzle">
+            <div id="puzzle-pool" class="puzzle-pool" aria-label="Stół z elementami"></div>
+            <div id="puzzle-grid" class="puzzle-grid" aria-label="Docelowa siatka 4x4">
+                <!-- 16 komórek generowanych skryptem jeśli nie istnieją -->
+            </div>
+        </div>
+        <div id="puzzle-status" class="status" role="status" aria-live="polite"></div>
+    </section>
+</main>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<!-- leaflet-image for rasterizing the map -->
+<script src="https://unpkg.com/leaflet-image/leaflet-image.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
