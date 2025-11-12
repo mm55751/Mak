@@ -17,7 +17,7 @@
     status: document.getElementById('puzzle-status')
   };
 
-  // Utwórz siatkę 4x4 w miejscu docelowym
+
   function ensureGridCells(){
     if (!els.grid.querySelector('.grid-cell')){
       for (let i=0;i<totalTiles;i++){
@@ -31,7 +31,7 @@
     }
   }
 
-  // Inicjalizacja mapy Leaflet
+
   function initMap(){
     map = L.map('map');
     const esriSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -43,7 +43,6 @@
     map.setView([52.237049, 21.017532], 12);
   }
 
-  // Prośba o zgody: powiadomienia + geolokalizacja (geolokalizacja pyta przy realnym użyciu)
   async function requestPermissions(){
     if ("Notification" in window){
       try {
@@ -73,10 +72,8 @@
       return;
     }
 
-    // Zaloguj aktualny stan uprawnień (debug)
     console.log('Notification.permission (before):', Notification.permission, 'tracked:', notificationPermission);
 
-    // Jeśli nie mamy zgody, spróbuj poprosić teraz (niektóre przeglądarki wymagają gestu użytkownika)
     try {
       if (Notification.permission !== 'granted'){
         const perm = await Notification.requestPermission();
@@ -98,13 +95,11 @@
         els.status.textContent = title + (body? ` – ${body}`: '');
       }
     } else {
-      // Fallback: wyświetl wiadomość w elemencie statusu i podpowiedz jak włączyć powiadomienia
       els.status.textContent = title + (body? ` – ${body}`: '') + ' (Aby otrzymać systemowe powiadomienie: kliknij "Poproś o zgody" i zezwól na powiadomienia lub włącz je w ustawieniach strony.)';
       console.log('Notification not granted; falling back to in-page status');
     }
   }
 
-  // Pomocnicze: świeża pozycja z pierwszą poprawką (watchPosition) z bezpośrednim timeoutem
   function getFreshPosition(options = {}){
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation){
@@ -125,7 +120,6 @@
       };
       const timer = setTimeout(() => {
         clearAll();
-        // Fallback: pojedynczy odczyt z mniej restrykcyjnymi opcjami
         navigator.geolocation.getCurrentPosition(
           pos => resolve(pos),
           err => reject(err),
@@ -134,7 +128,6 @@
       }, opts.timeout);
       let watchId = null;
       watchId = navigator.geolocation.watchPosition((pos) => {
-        // pierwszy fix – zwykle trafia szybciej i dokładniej niż pojedynczy getCurrentPosition
         clearAll();
         resolve(pos);
       }, (err) => {
@@ -144,7 +137,6 @@
     });
   }
 
-  // Moja lokalizacja
   async function goToMyLocation(){
     if (!navigator.geolocation){
       alert('Brak geolokalizacji');
@@ -171,7 +163,6 @@
     }
   }
 
-  // Eksport mapy do obrazu i przygotowanie puzzli
   function exportMap(){
     if (!window.leafletImage){
       alert('Brak modułu do eksportu (leaflet-image).');
@@ -202,9 +193,7 @@
     return arr;
   }
 
-  // Zbuduj puzzle 4x4 z obrazu
   function buildPuzzleFromImage(dataUrl){
-    // Wyczyść istniejące
     els.pool.innerHTML = '';
     els.grid.querySelectorAll('.grid-cell').forEach(c => { 
       c.classList.remove('correct'); 
@@ -212,7 +201,6 @@
     });
     placedCount = 0;
 
-    // Upewnij się, że mamy siatkę
     ensureGridCells();
 
     const img = new Image();
@@ -232,14 +220,14 @@
           const ctx = canvas.getContext('2d');
           ctx.drawImage(
             img,
-            c * tileW,    // sourceX
-            r * tileH,    // sourceY
-            tileW,        // sourceWidth
-            tileH,        // sourceHeight
-            0,           // destX
-            0,           // destY
-            tileW,       // destWidth
-            tileH        // destHeight
+            c * tileW,
+            r * tileH,
+            tileW,
+            tileH,
+            0,
+            0,
+            tileW,
+            tileH
           );
           
           const url = canvas.toDataURL('image/png', 1.0);
@@ -247,7 +235,6 @@
         }
       }
 
-      // Tasuj elementy i umieść w pool
       shuffle(pieces);
       for (const p of pieces){
         const tile = document.createElement('div');
@@ -266,7 +253,6 @@
         
         tile.appendChild(img);
         
-        // Dodaj zdarzenia
         tile.addEventListener('dragstart', onTileDragStart);
         tile.addEventListener('dragend', onTileDragEnd);
         els.pool.appendChild(tile);
@@ -309,9 +295,7 @@
     const placed = dragData?.sourceEl || document.querySelector(`.tile[data-index="${tileIndex}"]`);
     if (!placed) return;
 
-    // Usuń kafelek z poprzedniego miejsca
     if (placed.parentElement) {
-      // tylko jeśli poprzednia komórka była oznaczona jako poprawna, zmniejsz licznik
       const wasGridCell = placed.parentElement.classList.contains('grid-cell');
       const wasCorrect = placed.parentElement.classList.contains('correct');
       placed.parentElement.classList.remove('correct');
@@ -320,9 +304,8 @@
       }
     }
 
-    // Umieść kafelek w nowym miejscu
     targetCell.innerHTML = '';
-    placed.style.width = '';  // Reset do wartości z CSS
+    placed.style.width = '';
     placed.style.height = '';
     placed.style.aspectRatio = '';
     targetCell.appendChild(placed);
@@ -338,7 +321,6 @@
         showNotification('Gratulacje!', 'Udało Ci się ułożyć całą mapę');
       }
     } else {
-      // Upewnij się, że kafelek można przeciągać dalej
       placed.classList.remove('locked');
       placed.draggable = true;
       placed.style.cursor = 'grab';
@@ -346,24 +328,21 @@
     }
   }
 
-  // Zdarzenia UI
   function bindUI(){
     els.btnPermissions?.addEventListener('click', requestPermissions);
     els.btnMyLocation?.addEventListener('click', goToMyLocation);
     els.btnExport?.addEventListener('click', exportMap);
   }
 
-  // Start
   function start(){
     ensureGridCells();
     bindUI();
     initMap();
   }
 
-  // DOM ready
   if (document.readyState === 'loading'){
     document.addEventListener('DOMContentLoaded', start);
   } else {
     start();
   }
-})();
+};
