@@ -1,18 +1,18 @@
 const API_KEY = "4bd73471cd8174f99563c9a8b541211e";
 
-// --- Funkcje do konwersji daty (niezbędne) ---
+// --- Funkcje do konwersji daty---
 const ymd = (ts, tz=0)=>{const x=new Date((ts+tz)*1000);return `${x.getUTCFullYear()}-${String(x.getUTCMonth()+1).padStart(2,"0")}-${String(x.getUTCDate()).padStart(2,"0")}`};
 const human = (d)=>{const[a,b,c]=d.split("-").map(Number);return new Date(Date.UTC(a,b-1,c)).toLocaleDateString("pl-PL",{weekday:"long",day:"2-digit",month:"2-digit"})};
 const hm = (ts, tz=0)=>{const x=new Date((ts+tz)*1000);return `${String(x.getUTCHours()).padStart(2,"0")}:${String(x.getUTCMinutes()).padStart(2,"0")}`};
 const windDir = d => typeof d!=="number"?"-":["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"][Math.round(d/22.5)%16]+` (${d}°)`;
 
-// --- Stałe i prosta obsługa błędów ---
+// --- obsługa błędów ---
 const out = document.getElementById("wynik");
 const esc = s => String(s);
 const setError = m => out.innerHTML=`<p style="color:#b00020">${esc(m||'Błąd.')}</p>`;
 
 
-// 1. ŻĄDANIE CURRENT WEATHER (XMLHttpRequest)
+// XMLHttpRequest
 function getCurrentWeather(query, success, error) {
     const base = `q=${encodeURIComponent(query)}&appid=${API_KEY}&units=metric&lang=pl`;
     const req = new XMLHttpRequest();
@@ -33,7 +33,7 @@ function getCurrentWeather(query, success, error) {
     req.send();
 }
 
-// 2. ŻĄDANIE FORECAST (Fetch API)
+// Fetch API
 function getForecast(query, currentData) {
     const base = `q=${encodeURIComponent(query)}&appid=${API_KEY}&units=metric&lang=pl`;
 
@@ -52,7 +52,7 @@ function renderWeather(cur, fore) {
     const t=Math.round(cur.main?.temp??NaN), f=Math.round(cur.main?.feels_like??NaN);
     const curIcon = cur.weather?.[0]?.icon ? `https://openweathermap.org/img/wn/${cur.weather[0].icon}@2x.png` : '';
 
-    // A. Bieżąca pogoda
+    // Bieżąca pogoda
     let html=`<div style="padding:12px;border:1px solid #ddd;border-radius:8px">`;
     html+=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">`;
     html+=`${curIcon ? `<img src="${curIcon}" width="50" height="50">` : ''}`;
@@ -67,7 +67,7 @@ function renderWeather(cur, fore) {
     html+=`<div>Wiatr: <strong>${cur.wind?.speed??'-'} m/s</strong></div>`;
     html+=`<div>Kierunek wiatru: <strong>${windDir(cur.wind?.deg)}</strong></div></div></div>`;
 
-    // B. Prognoza na 5 dni (szczegółowa - co 3 godziny)
+    // Prognoza na 5 dni co 3 godziny
     const tz=fore.city?.timezone||0, today=ymd(Math.floor(Date.now()/1000),tz);
     const byDay=new Map();
     for(const it of fore.list||[]){if(ymd(it.dt,tz)>=today) (byDay.get(ymd(it.dt,tz))||byDay.set(ymd(it.dt,tz),[]).get(ymd(it.dt,tz))).push(it)}
@@ -81,7 +81,6 @@ function renderWeather(cur, fore) {
             html += `<div style="border:1px solid #e5e5e5;margin-top:8px;padding:8px;border-radius:6px"><h5>${esc(human(d))}</h5>`;
 
             const dailyArr = byDay.get(d) || [];
-            // Pętla FOR dla prognozy co 3 godziny
             for(let j=0; j<dailyArr.length; j++) {
                 const it = dailyArr[j];
                 const itemIcon = it.weather?.[0]?.icon ? `https://openweathermap.org/img/wn/${it.weather[0].icon}.png` : '';
@@ -113,4 +112,5 @@ function pogoda(){
             setError(errorMessage);
         }
     );
+
 }
